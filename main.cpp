@@ -125,8 +125,8 @@ void coin_random_pos(){
         x = x + 200;
     }
     int y =  rand() % 1000 + 1;
-    if (y <= 100){
-        y = y + 200;
+    if (y <= 300){
+        y = y + 400;
     }
     Coin.positionx = x;
     Coin.positiony = y;
@@ -135,7 +135,7 @@ void coin_colision(){
     int obj_startposx = Coin.positionx - 20;
     int obj_endposx = Coin.positionx + 20;
     int obj_startposy = Coin.positiony - 20;
-    int obj_endposy = Coin.positionx + 20;
+    int obj_endposy = Coin.positiony + 20;
     if (Player.positionx >= obj_startposx && Player.positionx <= obj_endposx && Player.positiony >= obj_startposy && Player.positiony <= obj_endposy){
         coin_random_pos();
         score ++;
@@ -184,11 +184,13 @@ int main(){
             if(Player.positionx >= 1001){
                 Player.direction = -1;
                 Player.positionx = 1000;
+                score ++;
                 spike_existace();
             }
             if(Player.positionx <= 10){
                 Player.direction = 1;
                 Player.positionx = 11;
+                score ++;
                 spike_existace();
             }
             //  Y
