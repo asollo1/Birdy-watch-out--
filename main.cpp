@@ -5,8 +5,9 @@
 
 //Variables
 //Menus
-bool isTitle = false;
-bool isGame = true;
+bool isTitle = true;
+bool isGame = false;
+int mousex, mousey;
 //Game
 bool isDead = false;
 int score = 0;
@@ -32,6 +33,14 @@ struct Coin {
     bool collected;
 };
 struct Coin Coin = {250, 250, false};
+//Textures
+struct Textures {
+    Texture2D spikeleft, spikeright, coin, bird;
+};
+//Sounds
+struct Sounds {
+    Sound left, right, coin, death, jump;
+};
 //Funtions
 void spike_posx(){
     int x;
@@ -74,15 +83,21 @@ void spike(bool spike, int spike_posx, int spike_posy, Texture2D spiketexturelef
         }
     }
 }
-void spike_existace(){
+void exesistance() {
     int kill = rand() % 10 + 1, i = 0;
-    Spikes = {true, true, true, true, true, true, true, true, true, true};
     while(i != 1){
         if(kill == 3){
             Spikes.spike3 = false;
             i = 1;
         }
         else if(kill == 4){
+        }
+        else if(kill == 4){
+            Spikes.spike4 = false;
+            i = 1;
+        }
+        else if(kill == 5){
+            Spikes.spike5 = false;
             Spikes.spike4 = false;
             i = 1;
         }
@@ -107,6 +122,11 @@ void spike_existace(){
         }
     }
 }
+void spike_existace(){
+    Spikes = {true, true, true, true, true, true, true, true, true, true};
+    exesistance();
+    exesistance();
+}
 void spike_colision(int obj_posx, int obj_posy, bool spike){
     int obj_startposx = obj_posx;
     int obj_endposx = obj_posx + 40;
@@ -120,7 +140,7 @@ void spike_colision(int obj_posx, int obj_posy, bool spike){
     }
 }
 void coin_random_pos(){
-    int x = rand() % 800 + 1;
+    int x = rand() % 700 + 1;
     if (x <= 100 or x >= 900){
         x = x + 200;
     }
@@ -141,6 +161,18 @@ void coin_colision(){
         score ++;
     }
 }
+bool button(int x, int y, const char *text){
+    int obj_startposx = x;
+    int obj_endposx = x + 200;
+    int obj_startposy = y;
+    int obj_endposy = y + 100; 
+    DrawRectangle(x, y, 200, 100, RED);
+    DrawText(text ,obj_startposx +20, obj_startposy + 30, 45, WHITE);
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && mousex >= obj_startposx && mousex <= obj_endposx && mousey >= obj_startposy && mousey <= obj_endposy){
+        return true;
+    }
+    return false;
+}
 //Main
 int main(){
     //Initialization
@@ -150,17 +182,19 @@ int main(){
     spike_existace();
     spike_posy(100);
     coin_random_pos();
-    Texture2D spiketextureleft = LoadTexture("textures/spike.png"), spiketextureright = LoadTexture("textures/spike.png"), cointexture = LoadTexture("textures/coin.png");
+    struct Textures Textures = {LoadTexture("textures/spike.png"), LoadTexture("textures/spike.png"), LoadTexture("textures/coin.png"), LoadTexture("textures/bird.png")};
+    struct Sounds Sounds = {LoadSound("sounds/left.wav"),LoadSound("sounds/right.wav"),LoadSound("sounds/coin.wav"),LoadSound("sounds/dead.wav")};
     while(!WindowShouldClose()){
         BeginDrawing();
         ClearBackground(WHITE);
+        mousex = { GetMousePosition().x};
+        mousey = { GetMousePosition().y};
         if (isTitle){
-            //if (GuiButton((Rectangle){ 20, 20, 20, 20 }, "Press me!")){
-            //    isGame = true;
-            //    isTitle = false;
-            //}
-            isGame = true;
-            isTitle = false;
+            DrawText("Birdy watch out!", 300, 400, 50, BLACK);
+            if (button(400, 550, "START")){
+                isGame = true;
+                isTitle = false;
+            }
         }
         if (isGame){
             //Gui
@@ -186,38 +220,40 @@ int main(){
                 Player.positionx = 1000;
                 score ++;
                 spike_existace();
+                PlaySound(Sounds.left);
             }
             if(Player.positionx <= 10){
                 Player.direction = 1;
                 Player.positionx = 11;
                 score ++;
                 spike_existace();
+                PlaySound(Sounds.right);
             }
             //  Y
-            if(Player.positiony >= 982){
-                Player.positiony = 981;
+            if(Player.positiony >= 992){
+                Player.positiony = 991;
                 acceleration = -20;
             }
-            if(Player.positiony <= 50){
-                Player.positiony = 51;
+            if(Player.positiony <= 20){
+                Player.positiony = 21;
                 acceleration = 0;
             }
             // Obsticles
             spike_posx();
             spike_posy(100);
-            spike(Spikes.spike1,Spikes.spike1_posx, Spikes.spike1_posy, spiketextureleft, spiketextureright);
-            spike(Spikes.spike2,Spikes.spike2_posx, Spikes.spike2_posy, spiketextureleft, spiketextureright);
-            spike(Spikes.spike3,Spikes.spike3_posx, Spikes.spike3_posy, spiketextureleft, spiketextureright);
-            spike(Spikes.spike4,Spikes.spike4_posx, Spikes.spike4_posy, spiketextureleft, spiketextureright);
-            spike(Spikes.spike5,Spikes.spike5_posx, Spikes.spike5_posy, spiketextureleft, spiketextureright);
-            spike(Spikes.spike6,Spikes.spike6_posx, Spikes.spike6_posy, spiketextureleft, spiketextureright);
-            spike(Spikes.spike7,Spikes.spike7_posx, Spikes.spike7_posy, spiketextureleft, spiketextureright);
-            spike(Spikes.spike8,Spikes.spike8_posx, Spikes.spike8_posy, spiketextureleft, spiketextureright);
-            spike(Spikes.spike9,Spikes.spike9_posx, Spikes.spike9_posy, spiketextureleft, spiketextureright);
-            spike(Spikes.spike10,Spikes.spike10_posx, Spikes.spike10_posy, spiketextureleft, spiketextureright);
+            spike(Spikes.spike1,Spikes.spike1_posx, Spikes.spike1_posy, Textures.spikeleft, Textures.spikeright);
+            spike(Spikes.spike2,Spikes.spike2_posx, Spikes.spike2_posy, Textures.spikeleft, Textures.spikeright);
+            spike(Spikes.spike3,Spikes.spike3_posx, Spikes.spike3_posy, Textures.spikeleft, Textures.spikeright);
+            spike(Spikes.spike4,Spikes.spike4_posx, Spikes.spike4_posy, Textures.spikeleft, Textures.spikeright);
+            spike(Spikes.spike5,Spikes.spike5_posx, Spikes.spike5_posy, Textures.spikeleft, Textures.spikeright);
+            spike(Spikes.spike6,Spikes.spike6_posx, Spikes.spike6_posy, Textures.spikeleft, Textures.spikeright);
+            spike(Spikes.spike7,Spikes.spike7_posx, Spikes.spike7_posy, Textures.spikeleft, Textures.spikeright);
+            spike(Spikes.spike8,Spikes.spike8_posx, Spikes.spike8_posy, Textures.spikeleft, Textures.spikeright);
+            spike(Spikes.spike9,Spikes.spike9_posx, Spikes.spike9_posy, Textures.spikeleft, Textures.spikeright);
+            spike(Spikes.spike10,Spikes.spike10_posx, Spikes.spike10_posy, Textures.spikeleft, Textures.spikeright);
             //Coin
             if (Coin.collected == false){
-                DrawTexture(cointexture, Coin.positionx - 20, Coin.positiony - 20, YELLOW);
+                DrawTexture(Textures.coin, Coin.positionx - 20, Coin.positiony - 20, YELLOW);
                 coin_colision();
             }
             // Controls
@@ -236,8 +272,17 @@ int main(){
         }
         if(isDead){
             DrawText("you died lol", 350, 450, 20, BLACK);
-            isGame = true;
-            isDead = false;
+            if (button(400, 550, "AGAIN?")){
+                isGame = true;
+                isDead = false;
+                score = 0;
+                coin_random_pos();
+                Player.positionx = 500;
+                Player.positiony = 500;
+                Player.direction = 1;
+                spike_existace();
+
+            }
         }
         EndDrawing();
     }
