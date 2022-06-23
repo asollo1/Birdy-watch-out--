@@ -39,7 +39,7 @@ struct Textures {
 };
 //Sounds
 struct Sounds {
-    Sound left, right, coin, death, jump;
+    Sound left, right, coin, death;
 };
 //Funtions
 void spike_posx(){
@@ -91,13 +91,6 @@ void exesistance() {
             i = 1;
         }
         else if(kill == 4){
-        }
-        else if(kill == 4){
-            Spikes.spike4 = false;
-            i = 1;
-        }
-        else if(kill == 5){
-            Spikes.spike5 = false;
             Spikes.spike4 = false;
             i = 1;
         }
@@ -127,7 +120,7 @@ void spike_existace(){
     exesistance();
     exesistance();
 }
-void spike_colision(int obj_posx, int obj_posy, bool spike){
+void spike_colision(int obj_posx, int obj_posy, bool spike, Sound dead){
     int obj_startposx = obj_posx;
     int obj_endposx = obj_posx + 40;
     int obj_startposy = obj_posy;
@@ -136,22 +129,23 @@ void spike_colision(int obj_posx, int obj_posy, bool spike){
         if (spike && Player.positionx >= obj_startposx && Player.positionx <= obj_endposx && Player.positiony >= obj_startposy && Player.positiony <= obj_endposy){
             isDead = true;
             isGame = false;
+            PlaySound(dead);
         }
     }
 }
 void coin_random_pos(){
     int x = rand() % 700 + 1;
-    if (x <= 100 or x >= 900){
+    if (x <= 100){
         x = x + 200;
     }
-    int y =  rand() % 1000 + 1;
-    if (y <= 300){
+    int y =  rand() % 700 + 1;
+    if (y <= 100){
         y = y + 400;
     }
     Coin.positionx = x;
     Coin.positiony = y;
 }
-void coin_colision(){
+void coin_colision(Sound coin){
     int obj_startposx = Coin.positionx - 20;
     int obj_endposx = Coin.positionx + 20;
     int obj_startposy = Coin.positiony - 20;
@@ -159,6 +153,7 @@ void coin_colision(){
     if (Player.positionx >= obj_startposx && Player.positionx <= obj_endposx && Player.positiony >= obj_startposy && Player.positiony <= obj_endposy){
         coin_random_pos();
         score ++;
+        PlaySound(coin);
     }
 }
 bool button(int x, int y, const char *text){
@@ -200,16 +195,16 @@ int main(){
             //Gui
             DrawText(std::to_string(score).c_str(), 450, 50, 100, GRAY);
             // Dead
-            spike_colision(Spikes.spike1_posx, Spikes.spike1_posy, Spikes.spike1);
-            spike_colision(Spikes.spike2_posx, Spikes.spike2_posy, Spikes.spike2);
-            spike_colision(Spikes.spike3_posx, Spikes.spike3_posy, Spikes.spike3);
-            spike_colision(Spikes.spike4_posx, Spikes.spike4_posy, Spikes.spike4);
-            spike_colision(Spikes.spike5_posx, Spikes.spike5_posy, Spikes.spike5);
-            spike_colision(Spikes.spike6_posx, Spikes.spike6_posy, Spikes.spike6);
-            spike_colision(Spikes.spike7_posx, Spikes.spike7_posy, Spikes.spike7);
-            spike_colision(Spikes.spike8_posx, Spikes.spike8_posy, Spikes.spike8);
-            spike_colision(Spikes.spike9_posx, Spikes.spike9_posy, Spikes.spike9);
-            spike_colision(Spikes.spike10_posx, Spikes.spike10_posy, Spikes.spike10);
+            spike_colision(Spikes.spike1_posx, Spikes.spike1_posy, Spikes.spike1, Sounds.death);
+            spike_colision(Spikes.spike2_posx, Spikes.spike2_posy, Spikes.spike2, Sounds.death);
+            spike_colision(Spikes.spike3_posx, Spikes.spike3_posy, Spikes.spike3, Sounds.death);
+            spike_colision(Spikes.spike4_posx, Spikes.spike4_posy, Spikes.spike4, Sounds.death);
+            spike_colision(Spikes.spike5_posx, Spikes.spike5_posy, Spikes.spike5, Sounds.death);
+            spike_colision(Spikes.spike6_posx, Spikes.spike6_posy, Spikes.spike6, Sounds.death);
+            spike_colision(Spikes.spike7_posx, Spikes.spike7_posy, Spikes.spike7, Sounds.death);
+            spike_colision(Spikes.spike8_posx, Spikes.spike8_posy, Spikes.spike8, Sounds.death);
+            spike_colision(Spikes.spike9_posx, Spikes.spike9_posy, Spikes.spike9, Sounds.death);
+            spike_colision(Spikes.spike10_posx, Spikes.spike10_posy, Spikes.spike10, Sounds.death);
             //Player
             //Rendering player
             DrawRectangle(Player.positionx - 10, Player.positiony - 10, 20, 20, BLACK);
@@ -252,10 +247,8 @@ int main(){
             spike(Spikes.spike9,Spikes.spike9_posx, Spikes.spike9_posy, Textures.spikeleft, Textures.spikeright);
             spike(Spikes.spike10,Spikes.spike10_posx, Spikes.spike10_posy, Textures.spikeleft, Textures.spikeright);
             //Coin
-            if (Coin.collected == false){
-                DrawTexture(Textures.coin, Coin.positionx - 20, Coin.positiony - 20, YELLOW);
-                coin_colision();
-            }
+            DrawTexture(Textures.coin, Coin.positionx - 20, Coin.positiony - 20, YELLOW);
+            coin_colision(Sounds.coin);
             // Controls
             if(IsMouseButtonPressed(MOUSE_BUTTON_LEFT)){
                 if (acceleration <= 0){
@@ -271,7 +264,9 @@ int main(){
             Player.positionx = Player.positionx + (velocity * Player.direction);
         }
         if(isDead){
-            DrawText("you died lol", 350, 450, 20, BLACK);
+            DrawText("Your score:", 320, 450, 50, BLACK);
+            DrawText(std::to_string(score).c_str(), 640, 450, 50, BLACK);
+            DrawText("GAME OVER", 200, 250, 100, BLACK);
             if (button(400, 550, "AGAIN?")){
                 isGame = true;
                 isDead = false;
